@@ -106,7 +106,7 @@ namespace
         }
         const ImVec2 titleMin = ImGui::GetItemRectMin();
         const ImVec2 titleMax = ImGui::GetItemRectMax();
-        ImGui::TextDisabled("Fake game activity for Discord");
+        ImGui::TextDisabled("Fake game activity for Discord Quests");
 
         // Status chip on the right, vertically centered on the title (drawn directly, no layout impact).
         const int  running = (int)g.sim.Sessions().size();
