@@ -9,7 +9,7 @@
 class ListDownloader
 {
 public:
-    static const wchar_t* DefaultUrl();   // https://discord.com/api/v9/applications/detectable
+    // https://discord.com/api/v9/applications/detectable
 
     ListDownloader() = default;
     ~ListDownloader();
