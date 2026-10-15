@@ -410,7 +410,14 @@ void AppFrame()
         const ImVec2 mouse = io.MousePos;
         const float  scale = ImGui::GetFontSize() / 16.0f;   // 16 px = our body font at 100% DPI
         g.particles.Update(io.DeltaTime, io.DisplaySize, ImGui::IsMousePosValid(&mouse) ? &mouse : nullptr, scale);
-        g.particles.Draw(ImGui::GetBackgroundDrawList());
+        ImDrawList* bg = ImGui::GetBackgroundDrawList();
+        g.particles.Draw(bg);
+
+        // Dim the particles (and anything else already on the bg list) with a translucent veil.
+        bg->AddRectFilled(
+            ImVec2(0.0f, 0.0f),
+            io.DisplaySize,
+            IM_COL32(0, 0, 0, 120));   // 0..255 — tune to taste
     }
 
     // One borderless window that fills the whole program window.
