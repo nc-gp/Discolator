@@ -7,6 +7,7 @@
 #include "imgui_impl_dx11.h"
 
 #include <d3d11.h>
+#include <windowsx.h>
 
 #pragma comment(lib, "d3d11.lib")
 
@@ -225,6 +226,23 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;
+    case WM_NCHITTEST:
+    {
+        LRESULT pos = DefWindowProcW(hWnd, msg, wParam, lParam);
+        if (pos != HTCLIENT) return pos;
+
+        POINT pt{ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+        ScreenToClient(hWnd, &pt);
+
+        RECT rc;
+        GetClientRect(hWnd, &rc);
+
+        const int dragStrip = (int)(30 * ImGui_ImplWin32_GetDpiScaleForHwnd(hWnd));
+        if (pt.y < dragStrip) return HTCAPTION;
+
+        return HTCLIENT;
     }
+    }
+
     return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
