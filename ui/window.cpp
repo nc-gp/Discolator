@@ -227,7 +227,6 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
         PostQuitMessage(0);
         return 0;
     case WM_NCHITTEST:
-    {
         LRESULT pos = DefWindowProcW(hWnd, msg, wParam, lParam);
         if (pos != HTCLIENT) return pos;
 
@@ -237,11 +236,10 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
         RECT rc;
         GetClientRect(hWnd, &rc);
 
-        const int dragStrip = (int)(30 * ImGui_ImplWin32_GetDpiScaleForHwnd(hWnd));
+        const int dragStrip = (int)(80 * ImGui_ImplWin32_GetDpiScaleForHwnd(hWnd));
         if (pt.y < dragStrip) return HTCAPTION;
 
         return HTCLIENT;
-    }
     }
 
     return DefWindowProcW(hWnd, msg, wParam, lParam);
