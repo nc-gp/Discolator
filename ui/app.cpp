@@ -67,7 +67,7 @@ namespace
             ImGui::TextDisabled("%s", right);
         }
     }
-
+    
     void ReloadGames()
     {
         const auto file = paths::GameListCacheFile();
@@ -359,7 +359,7 @@ namespace
         ImGui::SameLine();
         ImGui::BeginDisabled(g.downloader.IsRunning());
         if (ImGui::SmallButton("Download fresh list"))
-            g.downloader.Start(ListDownloader::DefaultUrl(), paths::GameListCacheFile());
+            g.downloader.Start(paths::GameListCacheFile());
         ImGui::EndDisabled();
         ImGui::SameLine();
         ImGui::TextDisabled("Build: " __DATE__ " " __TIME__);
@@ -437,6 +437,12 @@ void AppFrame()
     DrawStatus();
 
     g.footerHeight = (ImGui::GetCursorPosY() - footerTop) + 2.0f;
+       
+    if (ImGui::IsMouseDragging(0) && ImGui::IsWindowHovered()) {
+        ImVec2 pos = ImGui::GetWindowPos();
+        ImVec2 delta = ImGui::GetIO().MouseDelta;
+        ImGui::SetWindowPos(ImVec2(pos.x + delta.x, pos.y + delta.y));
+    }
 
     ImGui::End();
 }

@@ -18,7 +18,7 @@ public:
 
     // Starts downloading url and saves the converted list to outFile.
     // Returns false if a download is already running.
-    bool Start(const std::wstring& url, const std::filesystem::path& outFile);
+    bool Start(const std::filesystem::path& outFile);
 
     // Gives up on a running download. Never waits for the network: the worker thread
     // finishes (or times out) on its own and its result is thrown away.

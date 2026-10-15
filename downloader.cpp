@@ -66,15 +66,6 @@ namespace
     }
 }
 
-const wchar_t* ListDownloader::DefaultUrl()
-{
-#ifdef GAMESIM_LIST_URL
-    return GAMESIM_LIST_URL;
-#else
-    return L"https://discord.com/api/v9/applications/detectable";
-#endif
-}
-
 ListDownloader::~ListDownloader()
 {
     Cancel();
@@ -101,13 +92,13 @@ void ListDownloader::Cancel()
     state_.reset(); // the worker keeps its own reference and cleans up by itself
 }
 
-bool ListDownloader::Start(const std::wstring& url, const fs::path& outFile)
+bool ListDownloader::Start(const fs::path& outFile)
 {
     if (IsRunning())
         return false;
 
     state_ = std::make_shared<Shared>();
-    std::thread(&ListDownloader::Run, state_, url, outFile).detach();
+    std::thread(&ListDownloader::Run, state_, L"https://discord.com/api/v9/applications/detectable", outFile).detach();
     return true;
 }
 

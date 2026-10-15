@@ -40,4 +40,7 @@ private:
     bool         occluded_ = false;
     unsigned int resizeWidth_ = 0;
     unsigned int resizeHeight_ = 0;
+
+    bool dragging_ = false;
+    POINT dragOffset_{};
 };

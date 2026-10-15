@@ -23,7 +23,7 @@ bool Window::Create(const wchar_t* title, int width, int height)
     const float dpiScale = ImGui_ImplWin32_GetDpiScaleForMonitor(
         MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));
 
-    hwnd_ = CreateWindowW(wc_.lpszClassName, title, WS_OVERLAPPEDWINDOW, 100, 100,
+    hwnd_ = CreateWindowW(wc_.lpszClassName, title, WS_POPUP, 100, 100,
         (int)(width * dpiScale), (int)(height * dpiScale),
         nullptr, nullptr, wc_.hInstance, this);
     if (!hwnd_)
@@ -114,6 +114,7 @@ bool Window::BeginFrame()
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
+
     return true;
 }
 
