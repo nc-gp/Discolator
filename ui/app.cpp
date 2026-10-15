@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "../ui/window.h"
+
 #include "../config/config.h"
 #include "../downloader.h"
 #include "fonts.h"
@@ -128,7 +130,7 @@ namespace
         ImGui::Spacing();
         const ImVec2 p = ImGui::GetCursorScreenPos();
         const float  w = ImGui::GetContentRegionAvail().x;
-        const float  h = std::max(1.0f, ImGui::GetFontSize() * 0.12f);
+        const float  h = max(1.0f, ImGui::GetFontSize() * 0.12f);
         dl->AddRectFilledMultiColor(p, ImVec2(p.x + w, p.y + h),
             IM_COL32(140, 155, 255, 220), IM_COL32(140, 155, 255, 0),
             IM_COL32(140, 155, 255, 0), IM_COL32(140, 155, 255, 220));
@@ -152,7 +154,7 @@ namespace
             RebuildFilter();
 
         // The list takes whatever height the footer (measured last frame) doesn't need.
-        const float height = std::max(ImGui::GetFrameHeight() * 4, ImGui::GetContentRegionAvail().y - g.footerHeight);
+        const float height = max(ImGui::GetFrameHeight() * 4, ImGui::GetContentRegionAvail().y - g.footerHeight);
 
         // EndChild() must always be called, even when BeginChild() returns false.
         if (ImGui::BeginChild("games", ImVec2(0, height), ImGuiChildFlags_Borders))
@@ -438,10 +440,29 @@ void AppFrame()
 
     g.footerHeight = (ImGui::GetCursorPosY() - footerTop) + 2.0f;
        
-    if (ImGui::IsMouseDragging(0) && ImGui::IsWindowHovered()) {
-        ImVec2 pos = ImGui::GetWindowPos();
-        ImVec2 delta = ImGui::GetIO().MouseDelta;
-        ImGui::SetWindowPos(ImVec2(pos.x + delta.x, pos.y + delta.y));
+    if (Window* w = Window::Active())
+    {
+        static bool draggingWindow = false;
+
+        if (!draggingWindow &&
+            ImGui::IsMouseClicked(ImGuiMouseButton_Left) &&
+            ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) &&
+            !ImGui::IsAnyItemHovered())
+        {
+            draggingWindow = true;
+            w->StartDrag();
+        }
+
+        if (draggingWindow)
+        {
+            if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+                w->UpdateDrag();
+            else
+            {
+                w->EndDrag();
+                draggingWindow = false;
+            }
+        }
     }
 
     ImGui::End();

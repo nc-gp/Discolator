@@ -12,6 +12,7 @@
 #pragma comment(lib, "d3d11.lib")
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+Window* Window::s_active_ = nullptr;
 
 bool Window::Create(const wchar_t* title, int width, int height)
 {
@@ -29,6 +30,8 @@ bool Window::Create(const wchar_t* title, int width, int height)
         nullptr, nullptr, wc_.hInstance, this);
     if (!hwnd_)
         return false;
+
+    s_active_ = this;
 
     if (!CreateDevice())
     {
@@ -166,6 +169,8 @@ bool Window::CreateDevice()
 
 void Window::DestroyDevice()
 {
+    if (s_active_ == this) s_active_ = nullptr;
+
     DestroyRenderTarget();
     if (swapChain_) { swapChain_->Release(); swapChain_ = nullptr; }
     if (context_) { context_->Release();   context_ = nullptr; }
@@ -226,21 +231,26 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;
-    case WM_NCHITTEST:
-        LRESULT pos = DefWindowProcW(hWnd, msg, wParam, lParam);
-        if (pos != HTCLIENT) return pos;
-
-        POINT pt{ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-        ScreenToClient(hWnd, &pt);
-
-        RECT rc;
-        GetClientRect(hWnd, &rc);
-
-        const int dragStrip = (int)(80 * ImGui_ImplWin32_GetDpiScaleForHwnd(hWnd));
-        if (pt.y < dragStrip) return HTCAPTION;
-
-        return HTCLIENT;
     }
 
     return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
+
+void Window::StartDrag()
+{
+    dragging_ = true;
+    GetCursorPos(&dragCursorStart_);
+    GetWindowRect(hwnd_, &dragWindowStart_);
+}
+
+void Window::UpdateDrag()
+{
+    if (!dragging_) return;
+    POINT p; GetCursorPos(&p);
+    SetWindowPos(hwnd_, nullptr,
+        dragWindowStart_.left + (p.x - dragCursorStart_.x),
+        dragWindowStart_.top + (p.y - dragCursorStart_.y),
+        0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+}
+
+void Window::EndDrag() { dragging_ = false; }

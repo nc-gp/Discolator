@@ -21,6 +21,12 @@ public:
     bool BeginFrame();
     void EndFrame(const float clearColor[4]);
 
+    static Window* Active() { return s_active_; }
+
+    void StartDrag();   // remember cursor/window origin
+    void UpdateDrag();  // move OS window to follow cursor
+    void EndDrag();     // done
+
 private:
     bool CreateDevice();
     void DestroyDevice();
@@ -41,6 +47,8 @@ private:
     unsigned int resizeWidth_ = 0;
     unsigned int resizeHeight_ = 0;
 
-    bool dragging_ = false;
-    POINT dragOffset_{};
+    static Window* s_active_;
+    bool   dragging_ = false;
+    POINT  dragCursorStart_{};
+    RECT   dragWindowStart_{};
 };
