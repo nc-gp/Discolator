@@ -1,5 +1,6 @@
 # Discolator
 A fake game activity for discord quests.
+![Discolator screenshot](https://i.imgur.com/cOgJ5vR.png)
 
 ## Key Features
 - Fully working game simulation.
