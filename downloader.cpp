@@ -117,7 +117,7 @@ void ListDownloader::Run(std::shared_ptr<Shared> state, std::wstring url, fs::pa
 {
     std::string body, error, cache;
     size_t count = 0;
-
+    
     bool ok = Fetch(*state, url, body, error);
     if (!ok && state->cancel)
         error = "cancelled";

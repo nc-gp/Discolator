@@ -20,7 +20,7 @@ void ApplyTheme()
 
     ImVec4* c = s.Colors;
     c[ImGuiCol_WindowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);   // transparent: particles show through
-    c[ImGuiCol_ChildBg] = ImVec4(0.05f, 0.06f, 0.10f, 0.45f);   // slightly dark, still see-through
+    c[ImGuiCol_ChildBg] = ImVec4(0.04f, 0.05f, 0.09f, 0.72f);   // dark glass: text stays calm, particles still glow through
     c[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.09f, 0.15f, 0.96f);
 
     c[ImGuiCol_Header] = ImVec4(0.30f, 0.35f, 0.80f, 0.45f);

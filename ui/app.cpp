@@ -11,12 +11,12 @@
 
 #include "../ui/window.h"
 
+#include "../config/paths.h"
 #include "../config/config.h"
 #include "../downloader.h"
-#include "fonts.h"
+#include "../ui/fonts.h"
 #include "../game/games.h"
 #include "particles.h"
-#include "../config/paths.h"
 #include "../game/simulator.h"
 
 namespace
@@ -41,6 +41,7 @@ namespace
     };
     AppState g;
 
+    // ---- colors
     const ImVec4 kGood(0.45f, 0.85f, 0.55f, 1.0f);
     const ImVec4 kBad(1.00f, 0.45f, 0.45f, 1.0f);
     const ImVec4 kTime(0.55f, 0.75f, 1.00f, 1.0f);
@@ -69,7 +70,7 @@ namespace
             ImGui::TextDisabled("%s", right);
         }
     }
-    
+
     void ReloadGames()
     {
         const auto file = paths::GameListCacheFile();
@@ -98,6 +99,7 @@ namespace
             g.sim.Start(g.games[gameIndex], g.config.AutoStopSeconds(), g.config.hideTaskbar);
     }
 
+    // ---------------------------------------------------------------- header
     void DrawHeader()
     {
         ImDrawList* dl = ImGui::GetWindowDrawList();
@@ -108,7 +110,7 @@ namespace
         }
         const ImVec2 titleMin = ImGui::GetItemRectMin();
         const ImVec2 titleMax = ImGui::GetItemRectMax();
-        ImGui::TextDisabled("Fake game activity for Discord Quests");
+        ImGui::TextDisabled("Fake game activity for Discord");
 
         // Status chip on the right, vertically centered on the title (drawn directly, no layout impact).
         const int  running = (int)g.sim.Sessions().size();
@@ -135,9 +137,9 @@ namespace
             IM_COL32(140, 155, 255, 220), IM_COL32(140, 155, 255, 0),
             IM_COL32(140, 155, 255, 0), IM_COL32(140, 155, 255, 220));
         ImGui::Dummy(ImVec2(w, h));
-        ImGui::Spacing();
     }
 
+    // ----------------------------------------------------- search + game list
     void DrawGameList()
     {
         char count[48];
@@ -203,6 +205,7 @@ namespace
         ImGui::EndChild();
     }
 
+    // ------------------------------------------------------ start / stop all
     void DrawControls()
     {
         ImGui::Spacing();
@@ -225,6 +228,7 @@ namespace
         PopStopButton();
     }
 
+    // ----------------------------------------------------------- running list
     void DrawRunning()
     {
         ImGui::Spacing();
@@ -288,6 +292,7 @@ namespace
             g.sim.Stop((size_t)stopIndex);
     }
 
+    // --------------------------------------------------------------- settings
     // Returns true if a setting changed.
     bool DrawSettings()
     {
@@ -338,10 +343,9 @@ namespace
         return changed;
     }
 
+    // ----------------------------------------------------------------- status
     void DrawStatus()
     {
-        ImGui::Spacing();
-
         // Always takes one line, so the layout doesn't jump when the first message appears.
         if (g.downloader.IsRunning())
             ImGui::TextColored(kTime, "Downloading game list...  %.1f MB",
@@ -349,7 +353,7 @@ namespace
         else if (!g.sim.status.empty())
             ImGui::TextColored(g.sim.statusIsError ? kBad : kGood, "%s", g.sim.status.c_str());
         else
-            ImGui::TextUnformatted(" ");
+            ImGui::TextDisabled("Ready.");
 
         if (!g.loadError.empty())
             ImGui::TextColored(kBad, "%s", g.loadError.c_str());
@@ -410,14 +414,7 @@ void AppFrame()
         const ImVec2 mouse = io.MousePos;
         const float  scale = ImGui::GetFontSize() / 16.0f;   // 16 px = our body font at 100% DPI
         g.particles.Update(io.DeltaTime, io.DisplaySize, ImGui::IsMousePosValid(&mouse) ? &mouse : nullptr, scale);
-        ImDrawList* bg = ImGui::GetBackgroundDrawList();
-        g.particles.Draw(bg);
-
-        // Dim the particles (and anything else already on the bg list) with a translucent veil.
-        bg->AddRectFilled(
-            ImVec2(0.0f, 0.0f),
-            io.DisplaySize,
-            IM_COL32(0, 0, 0, 120));   // 0..255 — tune to taste
+        g.particles.Draw(ImGui::GetBackgroundDrawList());
     }
 
     // One borderless window that fills the whole program window.
@@ -433,7 +430,10 @@ void AppFrame()
 
     ImGui::Begin("##main", nullptr, flags);
 
-    DrawHeader();
+    // Header on its own translucent panel (borderless, but with padding).
+    if (ImGui::BeginChild("header", ImVec2(0, 0), ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_AutoResizeY))
+        DrawHeader();
+    ImGui::EndChild();
     DrawGameList();
 
     // Everything from here on is the "footer"; its height decides the list height next frame.
@@ -443,10 +443,14 @@ void AppFrame()
     DrawRunning();
     if (DrawSettings())
         g.config.Save();
-    DrawStatus();
+
+    ImGui::Spacing();
+    if (ImGui::BeginChild("status", ImVec2(0, 0), ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_AutoResizeY))
+        DrawStatus();
+    ImGui::EndChild();
 
     g.footerHeight = (ImGui::GetCursorPosY() - footerTop) + 2.0f;
-       
+
     if (Window* w = Window::Active())
     {
         static bool draggingWindow = false;
