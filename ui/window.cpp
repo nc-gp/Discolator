@@ -25,9 +25,13 @@ bool Window::Create(const wchar_t* title, int width, int height)
     const float dpiScale = ImGui_ImplWin32_GetDpiScaleForMonitor(
         MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));
 
-    hwnd_ = CreateWindowW(wc_.lpszClassName, title, WS_POPUP, 100, 100,
-        (int)(width * dpiScale), (int)(height * dpiScale),
-        nullptr, nullptr, wc_.hInstance, this);
+    int w = (int)(width * dpiScale);
+    int h = (int)(height * dpiScale);
+
+    int x = (GetSystemMetrics(SM_CXSCREEN) - w) / 2;
+    int y = (GetSystemMetrics(SM_CYSCREEN) - h) / 2;
+
+    hwnd_ = CreateWindowW(wc_.lpszClassName, title, WS_POPUP, x, y, w, h, nullptr, nullptr, wc_.hInstance, this);
     if (!hwnd_)
         return false;
 
